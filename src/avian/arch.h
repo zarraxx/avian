@@ -19,6 +19,10 @@
 #undef interface
 #endif
 
+#ifdef __APPLE__
+#include <libkern/OSAtomic.h>
+#endif
+
 #include "avian/common.h"
 
 extern "C" void NO_RETURN vmJump(void* address,
@@ -34,8 +38,11 @@ inline void compileTimeMemoryBarrier()
 {
 #ifdef _MSC_VER
   _ReadWriteBarrier();
+#elif defined(__APPLE__)
+    OSMemoryBarrier();
 #else
-  __asm__ __volatile__("" : : : "memory");
+__asm__ __volatile__("" : : : "memory");
+//  asm volatile("mfence":::"memory");
 #endif
 }
 
